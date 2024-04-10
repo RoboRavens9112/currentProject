@@ -10,6 +10,7 @@ import frc.robot.Robot;
 
 public class TankDrive extends Command {
   /** Creates a new TankDrive. */
+  private double speed = .8;
   public TankDrive() {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(Robot.driveTrain);
@@ -25,25 +26,26 @@ public class TankDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double leftStickY = Robot.m_Oi.GetDriverRawAxis(0)*.18;
-    double rightStickY = Robot.m_Oi.GetDriverRawAxis(5)*.18;
+    // eli arcade drive mode
+    double leftStickY = Robot.m_Oi.GetDriverRawAxis(2)*.9;
+    double leftStickX = -Robot.m_Oi.GetDriverRawAxis(1);
+
+    Robot.driveTrain.setLeftMotorsForward((leftStickY-leftStickX)*speed);
+    Robot.driveTrain.setRightMotorsForward((leftStickY+leftStickX)*speed);
+    
+    //regular tank drive
+    // double leftStickY = Robot.m_Oi.GetDriverRawAxis(3);
+    // double rightStickY = Robot.m_Oi.GetDriverRawAxis(1)*-1;
     // boolean bButtonPressed = Robot.m_Oi.bButtonPushed();
-    // double leftStickY = Robot.m_Oi.GetDriverRawAxis(1)*.18;
-  
-    // Robot.driveTrain.setLeftMotorsForward(leftStickY-leftStickX);
-    // Robot.driveTrain.setRightMotorsForward(leftStickY+leftStickX);
-      Robot.driveTrain.setLeftMotorsForward(leftStickY);
-      Robot.driveTrain.setRightMotorsForward(rightStickY);
+
+    // Robot.driveTrain.setLeftMotorsForward(leftStickY*speed);
+    // Robot.driveTrain.setRightMotorsForward(rightStickY*speed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Robot.driveTrain.setLeftMotorsForward(0);
-    Robot.driveTrain.setRightMotorsForward(0);
-    Robot.driveTrain.setLeftMotorsTurn(0);
-    Robot.driveTrain.setRightMotorsTurn(0);
-
+    Robot.driveTrain.stopRobot();
   }
 
   // Returns true when the command should end.

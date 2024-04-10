@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 // import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -21,9 +22,10 @@ public class Robot extends TimedRobot {
   public static Oi m_Oi;
   public static DriveTrain driveTrain = new DriveTrain();
   // public static FlatElevator flatElevator = new FlatElevator();
-    
+  
+  private static double speed = .25;
   private Command m_autonomousCommand;
-  private RobotContainer m_robotContainer;
+  // private RobotContainer m_robotContainer;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -33,7 +35,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    // m_robotContainer = new RobotContainer();
     m_Oi = new Oi();
     // CameraServer.startAutomaticCapture();
     
@@ -66,18 +68,31 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   
   public void autonomousInit() {
-   m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    //schedule the autonomous command (example)
-  if (m_autonomousCommand != null) {
-     m_autonomousCommand.schedule();
-  }
-  CommandScheduler.getInstance().run();
+    //autonomous mode if we're in the right corner
+    // Robot.driveTrain.setRightMotorsForwardOverdrive(-speed);
+    // Robot.driveTrain.setLeftMotorsForwardOverdrive(speed);
+    // Timer.delay(.2);
+    // Robot.driveTrain.stopRobot();
+    // Timer.delay(.25);
+    // Robot.driveTrain.setLeftMotorsForwardOverdrive( speed);
+    //when its in the left, set it to positive speed with setLeftMotors. when its in the right set it to negative speed with the setRightMotors
+    // Timer.delay(.6);
+    //comment out above code if you're in the center position
+    Robot.driveTrain.stopRobot();
+    for (int i = -1; i <= 1; i += 2) {
+      Robot.driveTrain.setRightMotorsForwardOverdrive(i*-speed);
+      Robot.driveTrain.setLeftMotorsForwardOverdrive(i*speed);
+      Timer.delay(2.25);
+      Robot.driveTrain.stopRobot();
+      // Timer.delay(1);
+    }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    // System.out.println("testing if this is called");
+  }
 
   @Override
   public void teleopInit() {
