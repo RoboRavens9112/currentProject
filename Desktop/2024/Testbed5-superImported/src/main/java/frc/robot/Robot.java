@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import org.photonvision.PhotonCamera;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 // import edu.wpi.first.cameraserver.CameraServer;
@@ -25,6 +28,21 @@ public class Robot extends TimedRobot {
   
   private static double speed = .25;
   private Command m_autonomousCommand;
+
+  public static PhotonCamera camera = new PhotonCamera("Camera_Module_v1");
+  // private final double LINEAR_P = 0.1;
+
+  // private final double LINEAR_D = 0.0;
+
+  // private PIDController forwardController = new PIDController(LINEAR_P, 0, LINEAR_D);
+
+
+  private static final double ANGULAR_P = 0.05;
+
+  private static final double ANGULAR_D = 0.2;
+
+  public static PIDController turnController = new PIDController(ANGULAR_P, 0, ANGULAR_D);
+;
   // private RobotContainer m_robotContainer;
 
   /**
@@ -68,30 +86,35 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   
   public void autonomousInit() {
-    //autonomous mode if we're in the right corner
-    // Robot.driveTrain.setRightMotorsForwardOverdrive(-speed);
-    // Robot.driveTrain.setLeftMotorsForwardOverdrive(speed);
-    // Timer.delay(.2);
-    // Robot.driveTrain.stopRobot();
-    // Timer.delay(.25);
-    // Robot.driveTrain.setLeftMotorsForwardOverdrive( speed);
-    //when its in the left, set it to positive speed with setLeftMotors. when its in the right set it to negative speed with the setRightMotors
-    // Timer.delay(.6);
-    //comment out above code if you're in the center position
     Robot.driveTrain.stopRobot();
-    for (int i = -1; i <= 1; i += 2) {
-      Robot.driveTrain.setRightMotorsForwardOverdrive(i*-speed);
-      Robot.driveTrain.setLeftMotorsForwardOverdrive(i*speed);
-      Timer.delay(2.25);
-      Robot.driveTrain.stopRobot();
-      // Timer.delay(1);
-    }
+    // for (int i = -1; i <= 1; i += 2) {
+    //   Robot.driveTrain.setRightMotorsForwardOverdrive(i*-speed);
+    //   Robot.driveTrain.setLeftMotorsForwardOverdrive(i*speed);
+    //   Timer.delay(2.25);
+    //   Robot.driveTrain.stopRobot();
+    //   // Timer.delay(1);
+    // }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     // System.out.println("testing if this is called");
+    double rotationSpeed;
+
+    // Vision-alignment mode
+    // Query the latest result from PhotonVision
+    var result = camera.getLatestResult();
+    if (result.hasTargets()) {
+      // Calculate angular turn power
+      // -1.0 required to ensure positive PID controller effort _increases_ yaw
+      rotationSpeed = turnController.calculate(result.getBestTarget().getYaw(), 0);
+    } else {
+      rotationSpeed = 0;
+    }
+
+    Robot.driveTrain.setLeftMotorsForward((rotationSpeed-(rotationSpeed==0?0:speed))*speed);
+    Robot.driveTrain.setRightMotorsForward((rotationSpeed+(rotationSpeed==0?0:speed))*speed);
   }
 
   @Override

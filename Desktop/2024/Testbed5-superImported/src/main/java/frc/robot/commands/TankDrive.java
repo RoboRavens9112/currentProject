@@ -10,7 +10,7 @@ import frc.robot.Robot;
 
 public class TankDrive extends Command {
   /** Creates a new TankDrive. */
-  private double speed = .8;
+  private double speed = .25;
   public TankDrive() {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(Robot.driveTrain);
@@ -27,16 +27,22 @@ public class TankDrive extends Command {
   @Override
   public void execute() {
     // eli arcade drive mode
-    double leftStickY = Robot.m_Oi.GetDriverRawAxis(2)*.9;
-    double leftStickX = -Robot.m_Oi.GetDriverRawAxis(1);
+    double leftStickY = -Robot.m_Oi.GetDriverRawAxis(4)*.7;
+    double leftStickX = Robot.m_Oi.GetDriverRawAxis(1);
 
+    if (Robot.m_Oi.XButtonPushed()) {
+      var result = Robot.camera.getLatestResult();
+      if (result.hasTargets()) {
+        leftStickY = Robot.turnController.calculate(result.getBestTarget().getYaw(), 0);
+      }
+    }
     Robot.driveTrain.setLeftMotorsForward((leftStickY-leftStickX)*speed);
     Robot.driveTrain.setRightMotorsForward((leftStickY+leftStickX)*speed);
     
     //regular tank drive
-    // double leftStickY = Robot.m_Oi.GetDriverRawAxis(3);
-    // double rightStickY = Robot.m_Oi.GetDriverRawAxis(1)*-1;
-    // boolean bButtonPressed = Robot.m_Oi.bButtonPushed();
+    // double leftStickY = -Robot.m_Oi.GetDriverRawAxis(5);
+    // double rightStickY = Robot.m_Oi.GetDriverRawAxis(1);
+    // // boolean bButtonPressed = Robot.m_Oi.bButtonPushed();
 
     // Robot.driveTrain.setLeftMotorsForward(leftStickY*speed);
     // Robot.driveTrain.setRightMotorsForward(rightStickY*speed);
